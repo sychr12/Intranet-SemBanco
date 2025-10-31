@@ -1,56 +1,71 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { NextResponse, NextRequest } from 'next/server';
+import { writeFile, access, constants, mkdir } from 'fs/promises';
+import path from 'path';
+import pool from '@/lib/db'; // Importe a conexão do seu MySQL
 
-// Configuração do banco MySQL
-const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "intranetdb",
-};
+type MySQLConnection = any; 
 
-export async function POST(req: Request) {
-  const connection = await mysql.createConnection(dbConfig);
+export async function POST(request: NextRequest) {
+    let connection: MySQLConnection | null = null;
+    
+    try {
+        const formData = await request.formData();
+        
+        // Campos de texto
+        const titulo = formData.get('titulo')?.toString();
+        const texto = formData.get('texto')?.toString();
+        
+        // Campo de arquivo (pode ser null)
+        const imagem = formData.get('imagem'); 
 
-  try {
-    const formData = await req.formData();
-    const titulo = formData.get("titulo")?.toString() || "";
-    const texto = formData.get("texto")?.toString() || "";
-    const imagem = formData.get("imagem") as File | null;
+        if (!titulo || !texto) {
+            return NextResponse.json({ ok: false, message: 'Título e texto do aviso são obrigatórios.' }, { status: 400 });
+        }
+        
+        let imagePath: string | null = null;
 
-    let imagemPath: string | null = null;
+        // Processa a imagem se ela existir
+        if (imagem instanceof File) {
+            const buffer = Buffer.from(await imagem.arrayBuffer());
+            const filename = `${Date.now()}-${imagem.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+            const baseUploadDir = path.join(process.cwd(), 'public', 'uploads', 'avisos');
+            const filePath = path.join(baseUploadDir, filename);
+            
+            // Garante que o diretório exista
+            try {
+                await access(baseUploadDir, constants.F_OK);
+            } catch (e) {
+                await mkdir(baseUploadDir, { recursive: true });
+            }
 
-    // Salvar a imagem na pasta /public/uploads
-    if (imagem) {
-      const bytes = await imagem.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const fileName = `${Date.now()}_${imagem.name}`;
-      const uploadPath = path.join(process.cwd(), "public", "uploads", fileName);
-      await writeFile(uploadPath, buffer);
-      imagemPath = `/uploads/${fileName}`;
+            await writeFile(filePath, buffer);
+            imagePath = `/uploads/avisos/${filename}`;
+        }
+
+        // --- 💾 Conexão e Inserção no MySQL ---
+        connection = await pool.getConnection();
+
+        // Insere o aviso na tabela de Avisos
+        const [result] = await connection.execute(
+            `INSERT INTO avisos (titulo, texto, imagem_url, data_criacao, ativo) 
+             VALUES (?, ?, ?, NOW(), 1)`, // ativo = 1 (Aviso ativo imediatamente)
+            [
+                titulo, 
+                texto, 
+                imagePath 
+            ]
+        );
+
+        return NextResponse.json({ 
+            ok: true, 
+            message: 'Aviso enviado e cadastrado com sucesso!',
+            id: (result as any).insertId 
+        });
+
+    } catch (error) {
+        console.error('Erro no envio do aviso:', error);
+        return NextResponse.json({ ok: false, message: 'Erro interno do servidor.' }, { status: 500 });
+    } finally {
+        if (connection) connection.release();
     }
-
-    // Inserir os dados no MySQL
-    const [result] = await connection.execute(
-      "INSERT INTO avisos (titulo, texto, imagem) VALUES (?, ?, ?)",
-      [titulo, texto, imagemPath]
-    );
-
-    console.log("✅ Novo aviso salvo:", { titulo, texto, imagemPath });
-
-    return NextResponse.json({
-      ok: true,
-      message: "Aviso salvo com sucesso!",
-    });
-  } catch (error) {
-    console.error("❌ Erro ao salvar aviso:", error);
-    return NextResponse.json(
-      { ok: false, message: "Erro ao salvar aviso." },
-      { status: 500 }
-    );
-  } finally {
-    await connection.end();
-  }
 }

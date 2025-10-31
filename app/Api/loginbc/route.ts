@@ -51,7 +51,7 @@ export async function POST(req: Request) {
 
     // Verifica se o usuário existe no banco
     const [rows] = await connection.query<RowDataPacket[]>(
-      "SELECT * FROM usuarios WHERE username = ? AND password = ? LIMIT 1",
+      "SELECT * FROM usuarios WHERE username = ? AND password = ? LIMIT 2",
       [username, password]
     );
 
