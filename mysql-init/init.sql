@@ -11,7 +11,7 @@ CREATE DATABASE IF NOT EXISTS intranet
 USE intranet;
 
 -- ---------------------------------------------------------------------
--- Tabela: avisos (Para Popups e Notificações)
+-- Tabela: avisos (Para Popups e Notificações) LIXO
 -- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS avisos;
 
@@ -28,7 +28,7 @@ CREATE TABLE avisos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
--- Tabela: usuarios (Para Login e Permissões)
+-- Tabela: usuarios (Para Login e Permissões) Não Funciona 
 -- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS usuarios;
 
@@ -41,7 +41,7 @@ CREATE TABLE usuarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
--- Tabela: materias (Para Notícias e Artigos - Rota /api/upload)
+-- Tabela: materias (Para Notícias e Artigos - Rota /api/upload) Não Funciona
 -- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS materias;
 
@@ -57,7 +57,7 @@ CREATE TABLE materias (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
--- Tabela: colaboradores (Para Listas de Ramais, E-mails e Contatos)
+-- Tabela: colaboradores (Para Listas de Ramais, E-mails e Contatos) Não Funciona
 -- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS colaboradores;
 
@@ -75,7 +75,7 @@ CREATE TABLE colaboradores (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
--- Tabela: documentos_pdf (Para Armazenar PDFs Editáveis/Visualizáveis)
+-- Tabela: documentos_pdf (Para Armazenar PDFs Editáveis/Visualizáveis) Não Funciona
 -- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS documentos_pdf;
 

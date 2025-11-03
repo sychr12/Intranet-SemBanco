@@ -6,14 +6,17 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      MYSQL_HOST: db
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
-      MYSQL_DATABASE: intranet
+      # Estes valores serão usados pelo seu arquivo lib/db.ts
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: intranet
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "sleep 15 && npm run start"
+    # A dependência 'service_healthy' já garante que o DB esteja pronto.
+    # Removemos o 'sleep 15'.
+    command: npm run start
     restart: always
     networks:
       - intranet_net
@@ -23,15 +26,19 @@ services:
     container_name: intranet_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      # Definimos a senha root para o healthcheck e para o app
+      MYSQL_ROOT_PASSWORD: root 
+      # Adicionamos a criação automática do DB 'intranet'
+      MYSQL_DATABASE: intranet 
       TZ: America/Sao_Paulo
     ports:
       - "3307:3306"
     volumes:
-      # 🟢 volume de dados e init.sql (ajustado)
+      # 🟢 volume de dados e init.sql
       - mysql_data:/var/lib/mysql
       - ./mysql-init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
+      # O healthcheck verifica se o MySQL está rodando e aceitando conexões
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot || exit 1"]
       interval: 10s
       timeout: 5s

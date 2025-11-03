@@ -1,19 +1,24 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { writeFile, access, constants, mkdir } from 'fs/promises';
+import { writeFile, access, constants, mkdir, readFile } from 'fs/promises';
 import path from 'path';
-import pool from '@/lib/db'; // Importe a conexão do seu MySQL
 
-type MySQLConnection = any; 
+// Localização do arquivo de metadados e da pasta de uploads de imagens
+const METADATA_PATH = path.join(process.cwd(), 'data', 'avisos.json');
+const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'avisos');
 
+/**
+ * Rota POST para receber um Aviso (texto, título, imagem opcional e agendamento)
+ * e salvar os metadados em um JSON local.
+ */
 export async function POST(request: NextRequest) {
-    let connection: MySQLConnection | null = null;
-    
     try {
         const formData = await request.formData();
         
-        // Campos de texto
+        // --- 1. Coleta e validação dos dados ---
         const titulo = formData.get('titulo')?.toString();
         const texto = formData.get('texto')?.toString();
+        // NOVO CAMPO: Agendamento de Data/Hora (datetime-local string)
+        const agendamento = formData.get('agendamento')?.toString() || null; 
         
         // Campo de arquivo (pode ser null)
         const imagem = formData.get('imagem'); 
@@ -23,49 +28,75 @@ export async function POST(request: NextRequest) {
         }
         
         let imagePath: string | null = null;
-
-        // Processa a imagem se ela existir
+        
+        // --- 2. Processamento e salvamento da imagem (se houver) ---
         if (imagem instanceof File) {
             const buffer = Buffer.from(await imagem.arrayBuffer());
+            // Cria um nome de arquivo seguro e único
             const filename = `${Date.now()}-${imagem.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-            const baseUploadDir = path.join(process.cwd(), 'public', 'uploads', 'avisos');
-            const filePath = path.join(baseUploadDir, filename);
+            const filePath = path.join(UPLOAD_DIR, filename);
             
-            // Garante que o diretório exista
+            // Garante que o diretório de upload exista
             try {
-                await access(baseUploadDir, constants.F_OK);
+                await access(UPLOAD_DIR, constants.F_OK);
             } catch (e) {
-                await mkdir(baseUploadDir, { recursive: true });
+                await mkdir(UPLOAD_DIR, { recursive: true });
             }
 
+            // Escreve o arquivo no sistema local
             await writeFile(filePath, buffer);
+            // Salva o caminho acessível publicamente
             imagePath = `/uploads/avisos/${filename}`;
         }
 
-        // --- 💾 Conexão e Inserção no MySQL ---
-        connection = await pool.getConnection();
+        // --- 3. Atualização do arquivo JSON de metadados ---
+        
+        // Garante que o diretório 'data' exista
+        const dataDir = path.join(process.cwd(), 'data');
+        try {
+            await access(dataDir, constants.F_OK);
+        } catch (e) {
+            await mkdir(dataDir, { recursive: true });
+        }
+        
+        // Inicializa/Lê os dados existentes
+        let avisos = [];
+        try {
+            const data = await readFile(METADATA_PATH, 'utf-8');
+            avisos = JSON.parse(data);
+            if (!Array.isArray(avisos)) avisos = []; // Garante que seja um array
+        } catch (e) {
+            // Arquivo não existe ou está inválido, começa com um array vazio
+            avisos = [];
+        }
 
-        // Insere o aviso na tabela de Avisos
-        const [result] = await connection.execute(
-            `INSERT INTO avisos (titulo, texto, imagem_url, data_criacao, ativo) 
-             VALUES (?, ?, ?, NOW(), 1)`, // ativo = 1 (Aviso ativo imediatamente)
-            [
-                titulo, 
-                texto, 
-                imagePath 
-            ]
-        );
+        // Cria o novo objeto Aviso
+        const novoAviso = {
+            id: Date.now(), // ID baseado no timestamp
+            titulo,
+            texto,
+            imagem_url: imagePath,
+            data_criacao: new Date().toISOString(),
+            // Informação importante para agendamento:
+            data_publicacao_agendada: agendamento, 
+            status: agendamento ? 'Agendado' : 'Publicado Imediatamente',
+        };
 
+        // Adiciona e salva o JSON
+        avisos.push(novoAviso);
+        await writeFile(METADATA_PATH, JSON.stringify(avisos, null, 2), 'utf-8');
+
+        // --- 4. Resposta de sucesso ---
         return NextResponse.json({ 
             ok: true, 
-            message: 'Aviso enviado e cadastrado com sucesso!',
-            id: (result as any).insertId 
-        });
+            message: 'Aviso enviado, salvo localmente e agendado com sucesso!',
+            data: novoAviso
+        }, { status: 200 });
 
     } catch (error) {
         console.error('Erro no envio do aviso:', error);
-        return NextResponse.json({ ok: false, message: 'Erro interno do servidor.' }, { status: 500 });
-    } finally {
-        if (connection) connection.release();
+        return NextResponse.json({ ok: false, message: 'Erro interno do servidor ao salvar o aviso localmente.' }, { status: 500 });
     }
 }
+
+// Nota: O método GET pode ser implementado aqui para ler o JSON e listar os avisos.

@@ -11,4 +11,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Next.js requer a exportação no formato CommonJS (module.exports)
+// No entanto, para usar a tipagem `NextConfig` com `import` e `export default`,
+// você pode deixar o arquivo com a extensão `.mjs` ou usar a sintaxe abaixo 
+// que é mais comum e compatível com a maioria dos setups.
+module.exports = nextConfig;

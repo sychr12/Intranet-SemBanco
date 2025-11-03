@@ -1,16 +1,10 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { writeFile, access, constants, mkdir } from 'fs/promises';
 import path from 'path';
-import pool from '@/lib/db'; // Garanta que esta conexão MySQL esteja tipada corretamente
 
-// A tipagem de conexão do MySQL pode precisar de ajustes dependendo da sua biblioteca (e.g., mysql2)
-type MySQLConnection = any; 
-
-// Para lidar com o FormData (arquivos), Next.js 13/14 App Router faz isso automaticamente.
-// A export const config não é mais necessária neste contexto.
+// Removida a dependência do MySQL (`pool` e `connection`)
 
 export async function POST(request: NextRequest) {
-    let connection: MySQLConnection | null = null;
     
     try {
         // Obtém o FormData do request
@@ -29,52 +23,52 @@ export async function POST(request: NextRequest) {
 
         const uploadedFilePaths: string[] = [];
         // Define o diretório base para uploads dentro da pasta public
+        // Isso garante que os arquivos possam ser acessados publicamente.
         const baseUploadDir = path.join(process.cwd(), 'public', 'uploads', 'materias');
 
         // Garante que o diretório de uploads exista
         try {
             await access(baseUploadDir, constants.F_OK);
         } catch (e) {
+            // Se o diretório não existir, cria ele e todos os pais necessários
             await mkdir(baseUploadDir, { recursive: true });
         }
         
         // Processa e salva cada arquivo
         for (const file of files) {
             const buffer = Buffer.from(await file.arrayBuffer());
-            // Limpa o nome do arquivo para garantir segurança
-            const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`; 
+            
+            // Cria um nome de arquivo único e seguro para evitar colisões e ataques de path traversal
+            // Remove caracteres não alfanuméricos e substitui por '_'
+            const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+            const filename = `${Date.now()}-${sanitizedFilename}`; 
             const filePath = path.join(baseUploadDir, filename);
 
+            // Salva o arquivo no sistema de arquivos local
             await writeFile(filePath, buffer);
             
-            // O caminho acessível publicamente no front-end
+            // O caminho acessível publicamente no front-end (Ex: /public/uploads/materias/...)
             uploadedFilePaths.push(`/uploads/materias/${filename}`);
         }
 
-        // --- 💾 Conexão e Inserção no MySQL ---
-        connection = await pool.getConnection();
-
-        // Insere o registro na tabela de Matérias
-        const [result] = await connection.execute(
-            `INSERT INTO materias (titulo, descricao, arquivos_json, data_upload) 
-             VALUES (?, ?, ?, NOW())`,
-            [
-                titulo, 
-                descricao, 
-                JSON.stringify(uploadedFilePaths) // Salva os caminhos como JSON string
-            ]
-        );
+        // --- SIMULAÇÃO DE ARMAZENAMENTO LOCAL (Substitui a lógica do MySQL) ---
+        // Neste modo, o sucesso é retornado após salvar os arquivos no disco.
 
         return NextResponse.json({ 
             ok: true, 
-            message: 'Matérias e arquivos enviados com sucesso!',
-            id: (result as any).insertId // Tipagem de retorno do MySQL
+            message: 'Matérias e arquivos salvos localmente no sistema de arquivos.',
+            // Retorna os dados que seriam inseridos, confirmando a operação
+            dados_salvos_localmente: {
+                titulo: titulo,
+                descricao: descricao,
+                caminhos_arquivos: uploadedFilePaths,
+                data_simulada: new Date().toISOString()
+            }
         });
 
     } catch (error) {
-        console.error('Erro no upload de matérias:', error);
-        return NextResponse.json({ ok: false, message: 'Erro interno do servidor.' }, { status: 500 });
-    } finally {
-        if (connection) connection.release();
+        console.error('Erro no upload de matérias (modo local):', error);
+        return NextResponse.json({ ok: false, message: 'Erro interno do servidor ao processar arquivos.' }, { status: 500 });
     }
+    // O bloco 'finally' para liberar a conexão MySQL foi removido.
 }

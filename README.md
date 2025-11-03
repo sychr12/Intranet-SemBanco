@@ -10,3 +10,6 @@ docker ps
 # 4. Conecte dentro do container do app
 docker-compose exec app ping db
 
+# Executar o codigo por completo
+docker-compose up --build
+
