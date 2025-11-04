@@ -605,7 +605,7 @@ export default function Page() {
           {/* Lista de Ramais (Link para PDF) */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
-              Ramais 📞
+              Ramais
             </h4>
             {/* Correção da sintaxe: whileHover deve estar na motion.a, não solta */}
             <motion.a
@@ -626,7 +626,7 @@ export default function Page() {
           {/* Lista de Emails (Link para PDF) */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
-              Lista de Emails 📧
+              Ramais de Emails 
             </h4>
             <motion.a
               href={EMAILS_PDF_URL}
@@ -646,7 +646,7 @@ export default function Page() {
           {/* Lista de Contatos (Link para PDF) */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
-              Lista de Contatos 📱
+              Ramais de Contatos
             </h4>
             <motion.a
               href={CONTATOS_PDF_URL}
