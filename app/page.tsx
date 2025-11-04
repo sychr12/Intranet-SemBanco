@@ -50,12 +50,12 @@ type Registro = {
   foto?: string;
 };
 
-type NewsItem = {
+interface NewsItem {
   id: number;
   title: string;
-  img: string;
-  href: string; // Adicionado 'href' para uso no link
-};
+  img: string; // O tipo 'string' é perfeito para URLs completas
+  href: string;
+}
 
 // =================================================================
 // 2. DADOS E CONSTANTES
@@ -263,182 +263,138 @@ const departamentos: Record<
 };
 
 // =================================================================
-// 3. COMPONENTE PRINCIPAL (UNIFICADO)
+// 3. COMPONENTE PRINCIPAL
 // =================================================================
 
 export default function Page() {
-  const [openMenu, setOpenMenu] = useState(false);
-  // Garante que o estado seja inicializado com Date
   const [date, setDate] = useState<Value>(new Date());
-  const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
-  const [ramais, setRamais] = useState<Registro[]>([]);
-  // Usei setEmails e setContatos com mock data para exibição (se você não tiver um banco configurado)
-  const [emails, setEmails] = useState<Registro[]>([]);
-  const [contatos, setContatos] = useState<Registro[]>([]);
   const [selectedDept, setSelectedDept] = useState<DepartmentKey>("PJ");
-
-  // O estado 'news' deve ter a tipagem correta com 'href'
   const [fetchedNews, setFetchedNews] = useState<NewsItem[]>([]);
 
-  // URL para o PDF da Lista de Ramais
-  const RAMAIS_PDF_URL = "/documentos/lista_de_ramais.pdf";
-  const EMAILS_PDF_URL = "/documentos/lista_de_emails.pdf";
-  const CONTATOS_PDF_URL = "/documentos/lista_de_contatos.pdf";
+  // PDFs
+  const RAMAIS_PDF_URL =
+    "https://office365prodam-my.sharepoint.com/:x:/g/personal/nti_idam_am_gov_br/EfqRFyXpB7dJme1xxhXjOYMBTJmkM7EoTfn_yk3wBfZuMQ?e=wK1SQ7";
+  const EMAILS_PDF_URL =
+    "https://docs.google.com/document/d/1Kil4NcZkgZUqnPt5o687z3eBD0W6YNfVXsn2J-t3MSQ/edit?pli=1&tab=t.0";
+  const CONTATOS_PDF_URL = "";
 
-  // Hook para carregar dados mock (simulando API/DB)
+  // Mock de notícias
   useEffect(() => {
-    const mockColaboradores: Colaborador[] = [
-      {
-        id: 1,
-        nome: "Luiz Silva",
-        cargo: "Analista de TI (Estagiário)",
-        foto: "/img/user1.png",
-        data_nascimento: "2004-10-09",
-      },
-      {
-        id: 2,
-        nome: "Kevin Markes",
-        cargo: "Analista de TI (Estagiário)",
-        foto: "/img/user2.png",
-        data_nascimento: "2004-05-19",
-      },
-      {
-        id: 3,
-        nome: "Pessoa1",
-        cargo: "Assistente de RH",
-        foto: "/img/user2.png",
-        data_nascimento: "2004-05-19",
-      },
-    ];
-    setColaboradores(mockColaboradores);
-
-    // Mock de dados para as listas que usam 'emails' e 'contatos'
-    const mockEmails: Registro[] = [
-      {
-        id: 101,
-        nome: "Chefe Exemplo",
-        email: "chefe@idam.am.gov.br",
-        cargo: "Diretor",
-        foto: "/img/user-placeholder.png",
-      },
-      {
-        id: 102,
-        nome: "Secretário Geral",
-        email: "sec.geral@idam.am.gov.br",
-        cargo: "Secretário",
-        foto: "/img/user-placeholder.png",
-      },
-    ];
-    setEmails(mockEmails);
-
-    const mockContatos: Registro[] = [
-      {
-        id: 201,
-        nome: "Coord. TI",
-        contato: "(92) 3333-0000",
-        cargo: "Coord. TI",
-        foto: "/img/user-placeholder.png",
-      },
-      {
-        id: 202,
-        nome: "Recepção",
-        contato: "(92) 3333-1111",
-        cargo: "Atendente",
-        foto: "/img/user-placeholder.png",
-      },
-    ];
-    setContatos(mockContatos);
-
-    // Mock data para notícias com 'href'
     const mockNews: NewsItem[] = [
       {
         id: 1,
-        title: "Como Gerenciar sua Estratégia Digital",
-        img: "/img/mariciu.png",
-        href: "#link-noticia-1",
+        title: "O que é malware e como se proteger?",
+        img: "./image/virus.png",
+        href: "https://www.kaspersky.com.br/resource-center/preemptive-safety/what-is-malware-and-how-to-protect-against-it",
       },
       {
         id: 2,
-        title: "Decore seu Home Office!",
-        img: "/image/mariciu.png",
-        href: "#link-noticia-2",
+        title: "Por que você não deve compartilhar suas senhas?",
+        img: "./image/compartilharsenha.png",
+        href: "https://digitalsecurityguide.eset.com/br/por-que-voce-nao-deve-compartilhar-suas-senhas",
       },
       {
         id: 3,
-        title: "Treinamento Interno - TI",
-        img: "/img/usuarios.png",
-        href: "#link-noticia-3",
+        title: "Como Fazer um Chamado",
+        img: "./image/img1.png",
+        href: "https://office365prodam-my.sharepoint.com/:b:/g/personal/nti_idam_am_gov_br/EedyNcwHiHFIvvURrOX9Z-oBVP-bAnKVXMgpW1AndAFW6Q?e=RNoSew",
       },
     ];
     setFetchedNews(mockNews);
   }, []);
 
+  // ============================
+  // 🔹 PEGAR DATA DO SERVIDOR
+  // ============================
+
+  const [loadingDate, setLoadingDate] = useState(true);
+
+  useEffect(() => {
+    async function fetchServerTime() {
+      setLoadingDate(true);
+      try {
+        // 🔧 Você pode trocar a URL pelo seu servidor:
+        // Exemplo: http://200.160.7.186/api/time
+        const res = await fetch(
+          "https://worldtimeapi.org/api/timezone/America/Manaus"
+        );
+
+        if (!res.ok) throw new Error("Erro ao obter hora do servidor");
+
+        const data = await res.json();
+
+        // A API retorna algo assim:
+        // {
+        //   "datetime": "2025-11-04T12:34:56.789012-04:00",
+        //   ...
+        // }
+
+        const serverDate = new Date(data.datetime);
+        if (!isNaN(serverDate.getTime())) {
+          setDate(serverDate);
+        } else {
+          console.warn("⚠️ Data inválida recebida:", data);
+        }
+      } catch (err) {
+        console.error("❌ Erro ao buscar hora do servidor:", err);
+      } finally {
+        setLoadingDate(false);
+      }
+    }
+
+    fetchServerTime();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-white-50 to-white-100 text-slate-800">
-      {/* ====== 1. CABEÇALHO ====== */}
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-200 to-gray-200 text-slate-800">
+      {/* ====== CABEÇALHO ====== */}
       <motion.header
-        className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50"
+        className=" border-b border-gray-100 bg-[#227e6a] shadow-sm sticky top-0 z-50"
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
       >
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          {/* Logo e título */}
           <div className="flex items-center gap-4">
-            {/* Usando Image da Next.js para otimização */}
             <Image
               src="/img/logo-idam.png"
               alt="Logo IDAM"
-              width={64} // Definição de tamanho para otimização
-              height={64} // Definição de tamanho para otimização
+              width={64}
+              height={64}
               className="object-contain"
             />
             <div>
-              <h1 className="text-2xl font-bold text-green-700">INTRANET</h1>
-              <p className="text-xs text-gray-500">
+              <h1 className="text-[1.10rem] leading-none tracking-tight sm:text-[1.0rem] font-geomanist font-semibold text-white">INTRANET</h1>
+              <p className="text-xs text-white font-geomanist font-normal">
                 Instituto de Desenvolvimento Agropecuário e Florestal
                 Sustentável do Amazonas
               </p>
             </div>
           </div>
 
-          {/* Botões de login e menu */}
-          <div className="flex items-center gap-3">
-            <Link href="./login">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-full bg-[#E7F6E7] hover:bg-[#C9EEC9] transition"
-                title="Área do usuário"
-              >
-                <UserCircle className="w-7 h-7 text-green-800" />
-              </motion.button>
-            </Link>
-
-            <button
-              onClick={() => setOpenMenu(!openMenu)}
-              className="md:hidden p-2 rounded bg-gray-100"
+          <Link href="./login">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Menu size={20} />
-            </button>
-          </div>
+            </motion.button>
+          </Link>
         </div>
       </motion.header>
 
-      {/* ====== 2. HERO / SEÇÃO DE DESTAQUE ====== */}
-      <section className="bg-[#E7F6E7] py-12 text-center border-b border-gray-200">
-        <h2 className="text-4xl font-extrabold text-green-800">
+      {/* ====== HERO ====== */}
+      <section className=" py-12 text-center border-b bg-[#144b3f] border-gray-200">
+        <h2 className="text-4xl  text-white font-geomanist font-semibold">
           Intranet IDAM
         </h2>
-        <p className="text-gray-700 mt-2 text-sm md:text-base max-w-xl mx-auto">
-          Conectando o desenvolvimento sustentável do Amazonas
+        <p className="text-white mt-2 text-sm md:text-base max-w-xl mx-auto font-geomanist font-normal">
+          Acesse os principais links de serviços da instituição
         </p>
       </section>
 
-      {/* ====== 3. LINKS RÁPIDOS ====== */}
-      <section className="max-w-7xl mx-auto px-6 -mt-8">
-        <div className="grid grid-cols-2 md:grid-cols-8 gap-4">
+      {/* ====== LINKS RÁPIDOS ====== */}
+      <section className="max-w-7xl mx-auto px-6 -mt-8 font-geomanist font-normal">
+        <div className="grid grid-cols-2 md:grid-cols-8 gap-4 p-5 font-geomanist font-normal" >
           {quickLinks.map((q, i) => (
-            // Uso de motion.a para envolver o clique e a animação
             <motion.a
               key={q.title}
               custom={i}
@@ -450,7 +406,7 @@ export default function Page() {
               href={q.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="cursor-pointer bg-white rounded-xl p-4 shadow-md flex flex-col items-center gap-2 hover:shadow-lg transition"
+              className="cursor-pointer bg-white rounded-xl p-4 shadow-md flex flex-col items-center gap-2 hover:shadow-lg transition font-geomanist font-normal"
             >
               <Image
                 src={q.img}
@@ -467,34 +423,30 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ====== 4. CONTEÚDO PRINCIPAL (Layout unificado) ====== */}
+      {/* ====== CONTEÚDO PRINCIPAL ====== */}
       <motion.main
         className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8"
         initial="hidden"
         animate="visible"
-        variants={{
-          hidden: {},
-          visible: { transition: { staggerChildren: 0.2 } },
-        }}
+        variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
       >
-        {/* Coluna esquerda – Documentos e Departamentos */}
+        {/* COLUNA ESQUERDA */}
         <div className="lg:col-span-2 space-y-8">
           {/* Documentos */}
           <motion.section variants={fadeUp}>
-            <h3 className="text-xl font-semibold text-green-800 mb-3">
+            <h3 className="text-xl font-semibold text-[#144b3f] mb-3">
               Documentos
             </h3>
-            <div className="flex flex-wrap gap-4">
-              {officeApps.map((doc, i) => (
+            <div className="flex flex-wrap gap-4 bg-amber-10 font-geomanist font-normal">
+              {officeApps.map((doc) => (
                 <motion.a
-                  key={i}
+                  key={doc.title}
                   href={doc.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05 }}
-                  className="flex flex-col items-center p-2 rounded-lg hover:bg-[#E7F6E7] transition w-20 text-center"
+                  className="flex flex-col items-center p-2 rounded-lg hover:bg-white transition w-20 text-center font-geomanist font-normal"
                 >
-                  {/* Usando <img> nativo para ícones menores que não precisam de otimização pesada */}
                   <img src={doc.img} alt={doc.title} className="w-10 h-10" />
                   <span className="text-xs mt-1 text-black">{doc.title}</span>
                 </motion.a>
@@ -504,76 +456,61 @@ export default function Page() {
 
           {/* Departamentos */}
           <motion.section variants={fadeUp}>
-            <h3 className="text-xl font-semibold text-green-800 mb-3">
+            <h3 className="text-xl text-[#144b3f] mb-3 font-geomanist font-normal">
               Departamentos
             </h3>
-            {/* Abas */}
-            <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 mb-4">
+            <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 mb-4 font-geomanist font-normal ">
               {(Object.keys(departamentos) as DepartmentKey[]).map((dep) => (
                 <button
                   key={dep}
                   onClick={() => setSelectedDept(dep)}
                   className={`px-4 py-2 text-sm font-medium transition-colors ${
                     selectedDept === dep
-                      ? "border-b-2 border-green-700 text-green-700"
-                      : "text-gray-500 hover:text-gray-800"
+                      ? "border-b-2 border-[#144b3f]  text-[#144b3f]"
+                      : "text-gray-500 hover:text-gray-800 font-geomanist font-normal"
                   }`}
                 >
                   {dep}
                 </button>
               ))}
             </div>
-            {/* Conteúdo das Abas */}
-            <motion.div
-              key={selectedDept}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-            >
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-geomanist font-normal">
               {departamentos[selectedDept].map((item) => (
                 <a
                   key={item.title}
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition font-geomanist font-normal"
                 >
-                  {/* Remoção do React.cloneElement para simplificar, a classe está no ícone */}
-                  <span className="text-green-700">{item.icon}</span>
-                  <span className="text-sm font-medium">{item.title}</span>
+                  <span className="text-[#144b3f]">{item.icon}</span>
+                  <span className="text-sm font-geomanist font-normal">{item.title}</span>
                 </a>
               ))}
-            </motion.div>
+            </div>
           </motion.section>
 
-          {/* O que há de novo (Notícias) */}
+          {/* Notícias */}
           <motion.section variants={fadeUp}>
-            <h3 className="text-xl font-semibold text-green-800 mb-3">
-              O que há de novo?
+            <h3 className="text-xl font-semibold text-[#144b3f] mb-3">
+              O que há de novo
             </h3>
-
-            {/* Lógica para Carregamento, Estado Vazio e Exibição de Dados */}
             {fetchedNews.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {fetchedNews.map((item) => (
                   <a
-                    href={item.href}
                     key={item.id}
+                    href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition"
+                    className="block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition group"
                   >
-                    <div className="relative w-full h-32">
-                      {/* Corrigido para usar Next/Image corretamente com layout="fill" */}
-                      <Image
-                        src={item.img}
-                        alt={item.title}
-                        fill={true}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover"
-                      />
-                    </div>
+                    <img
+                      src={item.img}
+                      alt={item.title}
+                      className="w-full h-32 object-cover"
+                    />
                     <div className="p-3">
                       <p className="text-sm font-semibold text-gray-800 leading-tight">
                         {item.title}
@@ -584,36 +521,42 @@ export default function Page() {
               </div>
             ) : (
               <div className="text-sm text-slate-500 pt-2 text-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                Nenhuma notícia nova encontrada ou carregando dados...
+                Nenhuma notícia disponível no momento.
               </div>
             )}
           </motion.section>
         </div>
 
-        {/* Coluna direita – Calendário e Listas */}
+        {/* COLUNA DIREITA */}
         <motion.aside className="space-y-8" variants={fadeUp}>
           {/* Calendário */}
           <div className="bg-white rounded-lg p-4 shadow">
             <h4 className="font-semibold mb-3">Calendário</h4>
-            <Calendar
-              onChange={setDate}
-              value={date}
-              className="w-full rounded-lg border-0 [&_.react-calendar__tile--active]:bg-green-700 [&_.react-calendar__tile--active]:text-white"
-            />
+
+            {loadingDate ? (
+              <p className="text-sm text-gray-500 text-center">
+                Carregando data...
+              </p>
+            ) : (
+              <Calendar
+                onChange={setDate}
+                value={date}
+                className="w-full rounded-lg border-0"
+              />
+            )}
           </div>
 
-          {/* Lista de Ramais (Link para PDF) */}
+          {/* Ramais */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
               Ramais
             </h4>
-            {/* Correção da sintaxe: whileHover deve estar na motion.a, não solta */}
             <motion.a
               href={RAMAIS_PDF_URL}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02, x: 2 }}
-              className="flex items-center justify-center gap-3 p-4 mt-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition duration-200 shadow-md"
+              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-green-700 transition duration-200 shadow-md"
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Ramais (PDF)
@@ -623,17 +566,17 @@ export default function Page() {
             </p>
           </div>
 
-          {/* Lista de Emails (Link para PDF) */}
+          {/* Emails */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
-              Ramais de Emails 
+              Ramais de Emails
             </h4>
             <motion.a
               href={EMAILS_PDF_URL}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02, x: 2 }}
-              className="flex items-center justify-center gap-3 p-4 mt-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition duration-200 shadow-md"
+              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#144b3f] transition duration-200 shadow-md"
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Emails (PDF)
@@ -643,7 +586,7 @@ export default function Page() {
             </p>
           </div>
 
-          {/* Lista de Contatos (Link para PDF) */}
+          {/* Contatos */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
               Ramais de Contatos
@@ -653,7 +596,7 @@ export default function Page() {
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02, x: 2 }}
-              className="flex items-center justify-center gap-3 p-4 mt-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition duration-200 shadow-md"
+              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#144b3f] transition duration-200 shadow-md"
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Contatos (PDF)
@@ -665,12 +608,9 @@ export default function Page() {
         </motion.aside>
       </motion.main>
 
-      {/* ========================================================== */}
-      {/* RODAPÉ */}
-      {/* ========================================================== */}
-      <footer className="bg-green-900 text-white mt-10">
+      {/* ====== RODAPÉ ====== */}
+      <footer className="bg-[#144b3f] text-white mt-10 font-geomanist font-normal">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          {/* Logo e Nome da Instituição */}
           <div className="flex items-center gap-3">
             <Image
               src="/img/logo-idam.png"
@@ -681,14 +621,12 @@ export default function Page() {
             />
             <div className="text-sm font-semibold">INTRANET IDAM</div>
           </div>
-
-          {/* Informações de Copyright e Localização */}
           <div className="text-center md:text-right">
-            <p className="text-xs text-green-300">
+            <p className="text-xs text-white font-geomanist font-normal ">
               Instituto de Desenvolvimento Agropecuário e Florestal Sustentável
               do Amazonas
             </p>
-            <p className="text-xs mt-1 text-green-200">
+            <p className="text-xs mt-1 text-white font-geomanist font-normal">
               © {new Date().getFullYear()} Todos os direitos reservados.
             </p>
           </div>

@@ -6,40 +6,41 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      # Estes valores serão usados pelo seu arquivo lib/db.ts
+      # Variáveis adaptadas para o PostgreSQL
       DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: root
+      DB_USER: postgres # Padrão para PostgreSQL, ou use um nome específico
+      DB_PASSWORD: root # Senha definida no serviço 'db'
       DB_NAME: intranet
     depends_on:
       db:
         condition: service_healthy
-    # A dependência 'service_healthy' já garante que o DB esteja pronto.
-    # Removemos o 'sleep 15'.
     command: npm run start
     restart: always
     networks:
       - intranet_net
 
   db:
-    image: mysql:8.0
-    container_name: intranet_db
+    # 🟢 Imagem do PostgreSQL (usando a versão 16-alpine, que é mais leve)
+    image: postgres:16-alpine
+    container_name: intranet_postgres_db
     restart: always
     environment:
-      # Definimos a senha root para o healthcheck e para o app
-      MYSQL_ROOT_PASSWORD: root 
-      # Adicionamos a criação automática do DB 'intranet'
-      MYSQL_DATABASE: intranet 
+      # Variáveis de ambiente padrão do PostgreSQL
+      POSTGRES_USER: postgres # Usuário do App
+      POSTGRES_PASSWORD: root # Senha do App
+      POSTGRES_DB: intranet # Nome do Banco de Dados
       TZ: America/Sao_Paulo
     ports:
-      - "3307:3306"
+      # 🟢 Porta padrão do PostgreSQL é 5432
+      - "5432:5432" 
     volumes:
-      # 🟢 volume de dados e init.sql
-      - mysql_data:/var/lib/mysql
-      - ./mysql-init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      # 🟢 Volume de dados para persistência do PostgreSQL
+      - postgres_data:/var/lib/postgresql/data 
+      # 🟢 Novo caminho para o script de inicialização (se necessário)
+      - ./postgres-init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      # O healthcheck verifica se o MySQL está rodando e aceitando conexões
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot || exit 1"]
+      # 🟢 Healthcheck usando pg_isready
+      test: ["CMD-SHELL", "pg_isready -U postgres -d intranet"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -47,7 +48,8 @@ services:
       - intranet_net
 
 volumes:
-  mysql_data:
+  # 🟢 Renomeamos o volume (ou criamos um novo)
+  postgres_data:
 
 networks:
   intranet_net:
