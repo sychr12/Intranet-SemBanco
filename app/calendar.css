@@ -1,29 +1,32 @@
+/* === Estilo principal do calendário === */
 .react-calendar {
-  width: 100%;
+  width: 100%;                      /* Ocupar toda a largura disponível */
   max-width: 100%;
-  background: #ffffff;
-  border: none;
-  border-radius: 1rem;
-  font-family: "Inter", sans-serif;
-  line-height: 1.125em;
-  padding: 0.5rem;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease-in-out;
+  background: #ffffff;              /* Fundo branco */
+  border: none;                     /* Remove bordas padrão */
+  border-radius: 1rem;              /* Bordas arredondadas */
+  font-family: "Inter", sans-serif; /* Tipografia moderna */
+  line-height: 1.125em;             /* Espaçamento entre linhas */
+  padding: 0.5rem;                  /* Espaçamento interno */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06); /* Sombra leve */
+  transition: all 0.2s ease-in-out; /* Transição suave para interações */
 }
 
+/* === Barra de navegação (mês, botões de avançar/voltar) === */
 .react-calendar__navigation {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between;   /* Espaço entre botões e título */
   align-items: center;
-  background: #f1fdf3;
+  background: #f1fdf3;              /* Fundo verde-claro */
   border-radius: 0.75rem;
   padding: 0.5rem 1rem;
   margin-bottom: 0.5rem;
 }
 
+/* === Botões de navegação (próximo / anterior / mês atual) === */
 .react-calendar__navigation button {
-  color: #166534;
-  min-width: 44px;
+  color: #166534;                   /* Verde-escuro */
+  min-width: 44px;                  /* Tamanho mínimo de toque */
   background: transparent;
   border: none;
   font-size: 1rem;
@@ -33,17 +36,18 @@
 }
 
 .react-calendar__navigation button:hover {
-  background-color: #bbf7d0;
-  color: #065f46;
+  background-color: #227e6a;        /* Fundo verde claro ao passar o mouse */
+  color: #065f46;                   /* Verde mais escuro no texto */
 }
 
+/* === Cabeçalho dos dias da semana === */
 .react-calendar__month-view__weekdays {
   text-align: center;
-  text-transform: uppercase;
+  text-transform: uppercase;        /* Letras maiúsculas */
   font-weight: 600;
   font-size: 0.75rem;
-  color: #047857;
-  background-color: #ecfdf5;
+  color: #227e6a;                   /* Verde médio */
+  background-color: #227e6a;        /* Fundo verde muito claro */
   border-radius: 0.5rem;
 }
 
@@ -51,6 +55,7 @@
   padding: 0.5rem 0;
 }
 
+/* === Cada célula/dia do calendário === */
 .react-calendar__tile {
   text-align: center;
   padding: 0.75rem 0;
@@ -62,51 +67,59 @@
   font-size: 0.9rem;
 }
 
+/* === Hover em um dia === */
 .react-calendar__tile:hover {
-  background-color: #d1fae5;
-  color: #064e3b;
-  transform: scale(1.03);
+  background-color: #227e6a;        /* Fundo verde-claro */
+  color: #227e6a;                   /* Texto verde escuro */
+  transform: scale(1.03);           /* Pequeno zoom */
 }
 
+/* === Dia atual (hoje) === */
 .react-calendar__tile--now {
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  color: #166534;
+  background: #f0fdf4;              /* Verde claro de destaque */
+  border: 1px solid #86efac;        /* Borda verde */
+  color: #227e6a;
   font-weight: 600;
 }
 
+/* === Dia selecionado (clicado) === */
 .react-calendar__tile--active {
-  background: #16a34a !important;
+  background: #227e6a !important;   /* Verde principal */
   color: white !important;
   font-weight: 600;
-  box-shadow: 0 0 0 2px #15803d33;
+  box-shadow: 0 0 0 2px #15803d33;  /* Efeito de foco */
 }
 
+/* Hover no dia selecionado */
 .react-calendar__tile--active:hover {
-  background: #15803d !important;
+  background: #227e6a !important;   /* Verde mais escuro */
   color: white;
 }
 
+/* === Dias de fim de semana === */
 .react-calendar__month-view__days__day--weekend {
-  color: #15803d;
+  color: #227e6a;                   /* Verde mais vivo */
 }
 
+/* === Dias de meses vizinhos (cinza) === */
 .react-calendar__month-view__days__day--neighboringMonth {
-  color: #9ca3af;
+  color: #9ca3af;                   /* Cinza neutro */
 }
 
+/* === Intervalos de data (ex: seleção de período) === */
 .react-calendar__tile--range {
-  background: #bbf7d0;
+  background: #bbf7d0;              /* Verde claro */
   color: #064e3b;
 }
 
+/* Início e fim do intervalo */
 .react-calendar__tile--rangeStart,
 .react-calendar__tile--rangeEnd {
-  background: #16a34a;
+  background: #227e6a;              /* Verde escuro */
   color: white;
 }
 
-/* Transição ao abrir/fechar */
+/* === Animação ao abrir o calendário === */
 .react-calendar--viewContainer {
   animation: fadeIn 0.2s ease-in-out;
 }
@@ -122,7 +135,7 @@
   }
 }
 
-/* Responsividade */
+/* === Responsividade para telas pequenas === */
 @media (max-width: 640px) {
   .react-calendar {
     font-size: 0.85rem;
@@ -133,20 +146,27 @@
     padding: 0.5rem 0;
   }
 }
-  .react-calendar__tile--active {
-    background: #16a34a !important;
-    color: #fff !important;
-  }
 
-  .react-calendar__tile:hover {
-    background-color: #04785733;
-  }
+/* === Personalizações extras === */
 
-  .react-calendar__tile--now {
-    color: #a7f3d0;
-  }
+/* Dia ativo (clicado) */
+.react-calendar__tile--active {
+  background: #227e6a !important;
+  color: #fff !important;
+}
 
-  .react-calendar__month-view__weekdays {
-    background: #065f46;
-    color: #6ee7b7;
-  }
+/* Hover geral */
+.react-calendar__tile:hover {
+  background-color: #04785733;      /* Verde transparente */
+}
+
+/* Cor do “hoje” (texto) */
+.react-calendar__tile--now {
+  color: #227e6a;                   /* Verde suave */
+}
+
+/* Cabeçalho dos dias da semana */
+.react-calendar__month-view__weekdays {
+  background: #ffff;              /* Verde escuro */
+  color: #227e6a;                   /* Verde neon */
+}

@@ -21,6 +21,7 @@ import {
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Image from "next/image";
+import "../app/calendar.css";
 import Link from "next/link";
 
 // =================================================================
@@ -155,6 +156,7 @@ const officeApps = [
 ];
 
 // Departamentos
+
 const departamentos: Record<
   DepartmentKey,
   { title: string; icon: JSX.Element; href: string }[]
@@ -346,7 +348,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-200 to-gray-200 text-slate-800">
+    <div className="relative w-full min-h-screen bg-[url('/image/foto2.png')] bg-cover bg-center bg-no-repeat">
       {/* ====== CABEÇALHO ====== */}
       <motion.header
         className=" border-b border-gray-100 bg-[#227e6a] shadow-sm sticky top-0 z-50"
@@ -363,7 +365,9 @@ export default function Page() {
               className="object-contain"
             />
             <div>
-              <h1 className="text-[1.10rem] leading-none tracking-tight sm:text-[1.0rem] font-geomanist font-semibold text-white">INTRANET</h1>
+              <h1 className="text-[1.10rem] leading-none tracking-tight sm:text-[1.0rem] font-geomanist font-semibold text-white">
+                INTRANET
+              </h1>
               <p className="text-xs text-white font-geomanist font-normal">
                 Instituto de Desenvolvimento Agropecuário e Florestal
                 Sustentável do Amazonas
@@ -375,8 +379,7 @@ export default function Page() {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-            >
-            </motion.button>
+            ></motion.button>
           </Link>
         </div>
       </motion.header>
@@ -393,7 +396,7 @@ export default function Page() {
 
       {/* ====== LINKS RÁPIDOS ====== */}
       <section className="max-w-7xl mx-auto px-6 -mt-8 font-geomanist font-normal">
-        <div className="grid grid-cols-2 md:grid-cols-8 gap-4 p-5 font-geomanist font-normal" >
+        <div className="grid grid-cols-2 md:grid-cols-8 gap-4 p-5 font-geomanist font-normal">
           {quickLinks.map((q, i) => (
             <motion.a
               key={q.title}
@@ -406,7 +409,7 @@ export default function Page() {
               href={q.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="cursor-pointer bg-white rounded-xl p-4 shadow-md flex flex-col items-center gap-2 hover:shadow-lg transition font-geomanist font-normal"
+              className="cursor-pointer bg-white rounded-xl hover:bg-gray-300 p-4 shadow-md flex flex-col items-center gap-2 hover:shadow-lg transition font-geomanist font-normal"
             >
               <Image
                 src={q.img}
@@ -445,7 +448,7 @@ export default function Page() {
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05 }}
-                  className="flex flex-col items-center p-2 rounded-lg hover:bg-white transition w-20 text-center font-geomanist font-normal"
+                  className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-300 transition w-20 text-center font-geomanist font-normal"
                 >
                   <img src={doc.img} alt={doc.title} className="w-10 h-10" />
                   <span className="text-xs mt-1 text-black">{doc.title}</span>
@@ -455,74 +458,115 @@ export default function Page() {
           </motion.section>
 
           {/* Departamentos */}
-          <motion.section variants={fadeUp}>
-            <h3 className="text-xl text-[#144b3f] mb-3 font-geomanist font-normal">
-              Departamentos
-            </h3>
-            <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 mb-4 font-geomanist font-normal ">
-              {(Object.keys(departamentos) as DepartmentKey[]).map((dep) => (
-                <button
+          <motion.section
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="font-geomanist font-normal"
+          >
+            <h3 className="text-xl text-[#144b3f] mb-3">Departamentos</h3>
+
+            {/* Botões de departamentos */}
+            <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 mb-4">
+              {(Object.keys(departamentos) as DepartmentKey[]).map((dep, i) => (
+                <motion.button
                   key={dep}
+                  custom={i}
+                  variants={fadeUp}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedDept(dep)}
-                  className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 text-sm font-medium transition-colors rounded-md ${
                     selectedDept === dep
-                      ? "border-b-2 border-[#144b3f]  text-[#144b3f]"
-                      : "text-gray-500 hover:text-gray-800 font-geomanist font-normal"
+                      ? "border-b-2 border-[#144b3f] text-[#144b3f]"
+                      : "text-gray-500 hover:text-gray-800"
                   }`}
                 >
                   {dep}
-                </button>
+                </motion.button>
               ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-geomanist font-normal">
-              {departamentos[selectedDept].map((item) => (
-                <a
+            {/* Lista de links do departamento selecionado */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {departamentos[selectedDept].map((item, i) => (
+                <motion.a
                   key={item.title}
+                  custom={i}
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover={{ scale: 1.05, backgroundColor: "#eaf4f1" }}
+                  whileTap={{ scale: 0.97 }}
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition font-geomanist font-normal"
+                  className="flex items-center gap-3 p-3 bg-white  rounded-lg shadow-sm hover:shadow-md transition"
                 >
                   <span className="text-[#144b3f]">{item.icon}</span>
-                  <span className="text-sm font-geomanist font-normal">{item.title}</span>
-                </a>
+                  <span className="text-sm">{item.title}</span>
+                </motion.a>
               ))}
             </div>
           </motion.section>
 
-          {/* Notícias */}
-          <motion.section variants={fadeUp}>
-            <h3 className="text-xl font-semibold text-[#144b3f] mb-3">
-              O que há de novo
-            </h3>
+          {/* Dicas (Notícias) */}
+          <motion.section
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="font-geomanist font-normal"
+          >
+            <h3 className="text-xl font-semibold text-[#144b3f] mb-3">Dicas</h3>
+
             {fetchedNews.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {fetchedNews.map((item) => (
-                  <a
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                variants={{
+                  visible: { transition: { staggerChildren: 0.15 } },
+                }}
+                initial=""
+                animate="visible"
+              >
+                {fetchedNews.map((item, i) => (
+                  <motion.a
                     key={item.id}
+                    custom={i}
+                    variants={fadeUp}
+                    whileHover={{
+                      scale: 1.05,
+                      boxShadow: "0px 6px 15px rgba(0,0,0,0.1)",
+                    }}
+                    whileTap={{ scale: 0.97 }}
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition group"
+                    className="block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition"
                   >
-                    <img
+                    <motion.img
                       src={item.img}
                       alt={item.title}
                       className="w-full h-32 object-cover"
+                      whileHover={{ scale: 1.08 }}
+                      transition={{ duration: 0.3 }}
                     />
                     <div className="p-3">
-                      <p className="text-sm font-semibold text-gray-800 leading-tight">
+                      <p className="text-sm font-semibold text-gray-800 leading-tight group-hover:text-[#144b3f] transition-colors">
                         {item.title}
                       </p>
                     </div>
-                  </a>
+                  </motion.a>
                 ))}
-              </div>
+              </motion.div>
             ) : (
-              <div className="text-sm text-slate-500 pt-2 text-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                Nenhuma notícia disponível no momento.
-              </div>
+              <motion.div
+                variants={fadeUp}
+                initial=""
+                animate="visible"
+                className="text-sm text-slate-500 pt-2 text-center bg-white p-4 rounded-lg shadow-sm border border-gray-100"
+              >
+                Nenhuma dica disponível no momento.
+              </motion.div>
             )}
           </motion.section>
         </div>
@@ -549,14 +593,14 @@ export default function Page() {
           {/* Ramais */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
-              Ramais
+             Lista de Ramais
             </h4>
             <motion.a
               href={RAMAIS_PDF_URL}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02, x: 2 }}
-              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-green-700 transition duration-200 shadow-md"
+              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#227e6a] transition duration-200 shadow-md"
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Ramais (PDF)
@@ -569,14 +613,14 @@ export default function Page() {
           {/* Emails */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
-              Ramais de Emails
+              Lista de Emails
             </h4>
             <motion.a
               href={EMAILS_PDF_URL}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02, x: 2 }}
-              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#144b3f] transition duration-200 shadow-md"
+              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#227e6a] transition duration-200 shadow-md"
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Emails (PDF)
@@ -589,14 +633,14 @@ export default function Page() {
           {/* Contatos */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
-              Ramais de Contatos
+              Lista de Contatos
             </h4>
             <motion.a
               href={CONTATOS_PDF_URL}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02, x: 2 }}
-              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#144b3f] transition duration-200 shadow-md"
+              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#227e6a] transition duration-200 shadow-md"
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Contatos (PDF)
