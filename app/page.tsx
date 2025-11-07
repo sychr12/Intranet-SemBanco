@@ -75,42 +75,42 @@ const fadeUp: Variants = {
 const quickLinks = [
   {
     title: "Ajuri",
-    img: "/img/cubos.png",
+    icon: "/icon/cubos.ico",
     href: "http://www.ajuri.am.gov.br/",
   },
   {
     title: "E-Compras",
-    img: "/img/carrinho-carrinho.png",
+    icon: "/icon/grafico-de-barras.ico",
     href: "https://www.e-compras.am.gov.br/publico/",
   },
   {
     title: "Email Corporativo",
-    img: "/img/correspondencia.png",
+    icon: "/icon/correspondencia.ico",
     href: "https://portal.office.com",
   },
   {
     title: "Sefaz",
-    img: "/img/grafico-de-barras.png",
+    icon: "/icon/grafico-de-barras.ico",
     href: "https://www.sefaz.am.gov.br/",
   },
   {
     title: "Siged",
-    img: "/img/pasta-aberta.png",
+    icon: "/icon/pasta-aberta.ico",
     href: "https://sistemas.sefaz.am.gov.br/siged/login",
   },
   {
     title: "Sigatex",
-    img: "/img/semente.png",
+    icon: "/icon/semente.ico",
     href: "https://sigater.idam.am.gov.br/",
   },
   {
     title: "Site IDAM",
-    img: "/img/globo.png",
+    icon: "/icon/globo.ico",
     href: "https://www.idam.am.gov.br/",
   },
   {
     title: "Suporte TI",
-    img: "/img/ferramentas.png",
+    icon: "/icon/ferramentas.ico",
     href: "https://nti.idam.am.gov.br/front/helpdesk.public.php",
   },
 ];
@@ -394,33 +394,31 @@ export default function Page() {
         </p>
       </section>
 
-      {/* ====== LINKS RÁPIDOS ====== */}
-      <section className="max-w-7xl mx-auto px-6 -mt-8 font-geomanist font-normal">
-        <div className="grid grid-cols-2 md:grid-cols-8 gap-4 p-5 font-geomanist font-normal">
-          {quickLinks.map((q, i) => (
+      <section className="max-w-max mx-auto px-10 -mt--10 font-geomanist font-normal">
+        <div className="grid grid-cols-1 md:grid-cols-8 gap-4 p-10">
+          {quickLinks.map((q) => (
             <motion.a
               key={q.title}
-              custom={i}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
               href={q.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="cursor-pointer bg-white rounded-xl hover:bg-gray-300 p-4 shadow-md flex flex-col items-center gap-2 hover:shadow-lg transition font-geomanist font-normal"
+              className="group cursor-pointer bg-white rounded-xl p-4 shadow-md flex flex-col items-center gap-2 hover:bg-gray-100 hover:shadow-xl transition"
             >
-              <Image
-                src={q.img}
-                alt={q.title}
-                width={48}
-                height={48}
-                className="object-contain"
-              />
-              <div className="text-sm font-semibold text-slate-700 text-center">
+        {/* Ícone com filtro hover */}
+        <div className="icon-group w-12 h-12">
+          <Image
+            src={q.icon} // ex: "/img/cubos.ico"
+            alt={q.title}
+            width={48}
+            height={48}
+            className="transition duration-300 group-hover:filter-green"
+          />
+        </div>
+
+              {/* Texto */}
+              <span className="text-sm font-semibold text-slate-700 text-center group-hover:text-[#d0f8d7] transition-colors">
                 {q.title}
-              </div>
+              </span>
             </motion.a>
           ))}
         </div>
@@ -593,7 +591,7 @@ export default function Page() {
           {/* Ramais */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
             <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
-             Lista de Ramais
+              Lista de Ramais
             </h4>
             <motion.a
               href={RAMAIS_PDF_URL}
@@ -671,7 +669,7 @@ export default function Page() {
               do Amazonas
             </p>
             <p className="text-xs mt-1 text-white font-geomanist font-normal">
-              © {new Date().getFullYear()} Todos os direitos reservados.
+              © {new Date().getFullYear()} NTI - Todos os direitos reservados.
             </p>
           </div>
         </div>
