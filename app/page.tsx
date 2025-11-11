@@ -18,6 +18,8 @@ import {
   FileSpreadsheet,
   File,
 } from "lucide-react";
+import { Layers, BarChart3, Mail, Globe, Wrench, Leaf } from "lucide-react";
+
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Image from "next/image";
@@ -75,42 +77,42 @@ const fadeUp: Variants = {
 const quickLinks = [
   {
     title: "Ajuri",
-    icon: "/icon/cubos.ico",
+    icon: <Layers className="w-6 h-6" />,
     href: "http://www.ajuri.am.gov.br/",
   },
   {
     title: "E-Compras",
-    icon: "/icon/grafico-de-barras.ico",
+    icon: <BarChart3 className="w-6 h-6" />,
     href: "https://www.e-compras.am.gov.br/publico/",
   },
   {
-    title: "Email Corporativo",
-    icon: "/icon/correspondencia.ico",
+    title: "Email ",
+    icon: <Mail className="w-6 h-6" />,
     href: "https://portal.office.com",
   },
   {
     title: "Sefaz",
-    icon: "/icon/grafico-de-barras.ico",
+    icon: <Globe className="w-6 h-6" />,
     href: "https://www.sefaz.am.gov.br/",
   },
   {
     title: "Siged",
-    icon: "/icon/pasta-aberta.ico",
+    icon: <FolderOpen className="w-6 h-6" />,
     href: "https://sistemas.sefaz.am.gov.br/siged/login",
   },
   {
     title: "Sigatex",
-    icon: "/icon/semente.ico",
+    icon: <Leaf className="w-6 h-6" />,
     href: "https://sigater.idam.am.gov.br/",
   },
   {
     title: "Site IDAM",
-    icon: "/icon/globo.ico",
+    icon: <Globe className="w-6 h-6" />,
     href: "https://www.idam.am.gov.br/",
   },
   {
     title: "Suporte TI",
-    icon: "/icon/ferramentas.ico",
+    icon: <Wrench className="w-6 h-6"/>,
     href: "https://nti.idam.am.gov.br/front/helpdesk.public.php",
   },
 ];
@@ -127,7 +129,9 @@ const officeApps = [
     title: "Word",
     href: "https://www.office.com/launch/word",
   },
-  { img: "/image/excel.png", title: "Excel", href: "https://excel.office.com" },
+  { img: "/image/excel.png", 
+    title: "Excel", 
+    href: "https://excel.office.com" },
   {
     img: "/image/powerpoint.png",
     title: "PowerPoint",
@@ -150,7 +154,7 @@ const officeApps = [
   },
   {
     img: "/image/office.png",
-    title: "Office Chat",
+    title: "Office",
     href: "https://m365.cloud.microsoft/chat/?auth=2",
   },
 ];
@@ -348,7 +352,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen bg-[url('/image/foto2.png')] bg-cover bg-center bg-no-repeat">
+    <div className="relative w-full min-h-screen bg-[url('/Gov/foto7.png')] bg-cover bg-center bg-no-repeat">
       {/* ====== CABEÇALHO ====== */}
       <motion.header
         className=" border-b border-gray-100 bg-[#227e6a] shadow-sm sticky top-0 z-50"
@@ -365,7 +369,7 @@ export default function Page() {
               className="object-contain"
             />
             <div>
-              <h1 className="text-[1.10rem] leading-none tracking-tight sm:text-[1.0rem] font-geomanist font-semibold text-white">
+              <h1 className="text-[1.10rem] leading-nonebg-[url('/Gov/foto7.png')] tracking-tight sm:text-[1.0rem] font-geomanist font-semibold text-white">
                 INTRANET
               </h1>
               <p className="text-xs text-white font-geomanist font-normal">
@@ -386,43 +390,49 @@ export default function Page() {
 
       {/* ====== HERO ====== */}
       <section className=" py-12 text-center border-b bg-[#144b3f] border-gray-200">
-        <h2 className="text-4xl  text-white font-geomanist font-semibold">
-          Intranet IDAM
-        </h2>
-        <p className="text-white mt-2 text-sm md:text-base max-w-xl mx-auto font-geomanist font-normal">
-          Acesse os principais links de serviços da instituição
-        </p>
+        {/* Logo à direita */}
+        <div className="flex justify-center-safe">
+          <Image
+            src="/Gov/Nome-INTRANET.png"
+            alt="Logo IDAM"
+            width={380}
+            height={380}
+            className="object-contain"
+          />
+        </div>
+        <p className="text-white mt-2 text-base md:text-base max-w-xl mx-auto font-geomanist font-normal"></p>
       </section>
 
-      <section className="max-w-max mx-auto px-10 -mt--10 font-geomanist font-normal">
-        <div className="grid grid-cols-1 md:grid-cols-8 gap-4 p-10">
-          {quickLinks.map((q) => (
+      {/* Lista de links rápidos (Quick Links) */}
+      <div className="max-w-7xl mx-auto px-6 -mt-0 font-geomanist font-normal hover:shadow-black ">
+        <div className="grid grid-cols-2 md:grid-cols-8 gap-4 p-5 hover:ring-black font-geomanist font-normal hover:[] ">
+          {quickLinks.map((q, i) => (
             <motion.a
               key={q.title}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
               href={q.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group cursor-pointer bg-white rounded-xl p-4 shadow-md flex flex-col items-center gap-2 hover:bg-gray-100 hover:shadow-xl transition"
+              className="flex flex-col items-center justify-center gap-2 p-3 hover:shadow-black bg-[#144b3f] text-white rounded-xl shadow-md hover:bg-[#1d6654] transition-all duration-300 min-h-[110px]"
             >
-        {/* Ícone com filtro hover */}
-        <div className="icon-group w-12 h-12">
-          <Image
-            src={q.icon} // ex: "/img/cubos.ico"
-            alt={q.title}
-            width={48}
-            height={48}
-            className="transition duration-300 group-hover:filter-green"
-          />
-        </div>
+              {/* Ícone */}
+              <div className="w-8 h-8 flex items-center justify-center">
+                {q.icon}
+              </div>
 
-              {/* Texto */}
-              <span className="text-sm font-semibold text-slate-700 text-center group-hover:text-[#d0f8d7] transition-colors">
+              {/* Título */}
+              <span className="text-base font-semibold tracking-wide text-center uppercase">
                 {q.title}
               </span>
             </motion.a>
           ))}
         </div>
-      </section>
+      </div>
 
       {/* ====== CONTEÚDO PRINCIPAL ====== */}
       <motion.main
@@ -435,7 +445,7 @@ export default function Page() {
         <div className="lg:col-span-2 space-y-8">
           {/* Documentos */}
           <motion.section variants={fadeUp}>
-            <h3 className="text-xl font-semibold text-[#144b3f] mb-3">
+            <h3 className="text-xl font-semibold text-[#144b3f] mb-3 text-bold">
               Documentos
             </h3>
             <div className="flex flex-wrap gap-4 bg-amber-10 font-geomanist font-normal">
@@ -460,12 +470,12 @@ export default function Page() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="font-geomanist font-normal"
+            className="font-geomanist font-normal "
           >
-            <h3 className="text-xl text-[#144b3f] mb-3">Departamentos</h3>
+            <h3 className="text-xl font-semibold text-[#144b3f] mb-3 text-bold">Departamentos</h3>
 
             {/* Botões de departamentos */}
-            <div className="flex flex-wrap gap-3 border-b-2 border-gray-200 mb-4">
+            <div className="flex flex-wrap font-bold gap-3 border-b-2 border-gray-200 mb-4">
               {(Object.keys(departamentos) as DepartmentKey[]).map((dep, i) => (
                 <motion.button
                   key={dep}
@@ -474,7 +484,7 @@ export default function Page() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedDept(dep)}
-                  className={`px-4 py-2 text-sm font-medium transition-colors rounded-md ${
+                  className={`px-4 py-2 text-base font-medium transition-colors rounded-md ${
                     selectedDept === dep
                       ? "border-b-2 border-[#144b3f] text-[#144b3f]"
                       : "text-gray-500 hover:text-gray-800"
@@ -502,7 +512,7 @@ export default function Page() {
                   className="flex items-center gap-3 p-3 bg-white  rounded-lg shadow-sm hover:shadow-md transition"
                 >
                   <span className="text-[#144b3f]">{item.icon}</span>
-                  <span className="text-sm">{item.title}</span>
+                  <span className="text-base">{item.title}</span>
                 </motion.a>
               ))}
             </div>
@@ -549,7 +559,7 @@ export default function Page() {
                       transition={{ duration: 0.3 }}
                     />
                     <div className="p-3">
-                      <p className="text-sm font-semibold text-gray-800 leading-tight group-hover:text-[#144b3f] transition-colors">
+                      <p className="text-base font-semibold text-gray-800 leading-tight group-hover:text-[#144b3f] transition-colors">
                         {item.title}
                       </p>
                     </div>
@@ -561,7 +571,7 @@ export default function Page() {
                 variants={fadeUp}
                 initial=""
                 animate="visible"
-                className="text-sm text-slate-500 pt-2 text-center bg-white p-4 rounded-lg shadow-sm border border-gray-100"
+                className="text-base text-slate-500 pt-2 text-center bg-white p-4 rounded-lg shadow-sm border border-gray-100"
               >
                 Nenhuma dica disponível no momento.
               </motion.div>
@@ -573,10 +583,10 @@ export default function Page() {
         <motion.aside className="space-y-8" variants={fadeUp}>
           {/* Calendário */}
           <div className="bg-white rounded-lg p-4 shadow">
-            <h4 className="font-semibold mb-3">Calendário</h4>
+            <h4 className="font-semibold mb-3 text-base">Calendário</h4>
 
             {loadingDate ? (
-              <p className="text-sm text-gray-500 text-center">
+              <p className="text-base text-gray-500 text-center">
                 Carregando data...
               </p>
             ) : (
@@ -590,7 +600,7 @@ export default function Page() {
 
           {/* Ramais */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
-            <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
+            <h4 className="font-semibold text-xl text-green-800 mb-3 border-b pb-2">
               Lista de Ramais
             </h4>
             <motion.a
@@ -610,7 +620,7 @@ export default function Page() {
 
           {/* Emails */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
-            <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
+            <h4 className="font-semibold text-xl text-green-800 mb-3 border-b pb-2">
               Lista de Emails
             </h4>
             <motion.a
@@ -630,7 +640,7 @@ export default function Page() {
 
           {/* Contatos */}
           <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
-            <h4 className="font-semibold text-green-800 mb-3 border-b pb-2">
+            <h4 className="font-semibold text-xl text-green-800 mb-3 border-b pb-2">
               Lista de Contatos
             </h4>
             <motion.a
@@ -651,26 +661,44 @@ export default function Page() {
       </motion.main>
 
       {/* ====== RODAPÉ ====== */}
-      <footer className="bg-[#144b3f] text-white mt-10 font-geomanist font-normal">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/img/logo-idam.png"
-              alt="Logo IDAM Branco"
-              width={40}
-              height={40}
-              className="object-contain"
-            />
-            <div className="text-sm font-semibold">INTRANET IDAM</div>
-          </div>
-          <div className="text-center md:text-right">
-            <p className="text-xs text-white font-geomanist font-normal ">
-              Instituto de Desenvolvimento Agropecuário e Florestal Sustentável
-              do Amazonas
+
+      <div className="w-full h-10 bg-[#227e6a]"></div>
+      <footer className="bg-[#144b3f] text-white font-geomanist font-normal h-30">
+        <div className="max-w-7xl mx-auto px-6 py-1 flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Texto Institucional */}
+          <div className="flex flex-col text-center md:text-left ">
+            <p className="text-base leading-relaxed ">
+              NÚCLEO DE TECNOLOGIA DA INFORMAÇÃO
             </p>
-            <p className="text-xs mt-1 text-white font-geomanist font-normal">
+            <p className="text-xs text-gray-200 mt-2">
               © {new Date().getFullYear()} NTI - Todos os direitos reservados.
             </p>
+          </div>
+
+          {/* Logos lado a lado */}
+          <div className="flex justify-end space-x-4 mt-4 md:mt-3">
+            <Image
+              src="/Gov/logo-idam.png"
+              alt="Logo IDAM"
+              width={100}
+              height={100}
+              className="object-contain"
+            />
+            <Image
+              src="/Gov/sepror.png"
+              alt="Logo Sepror"
+              width={100}
+              height={100}
+              className="object-contain"
+            />
+
+            <Image
+              src="/Gov/logo-govam.png"
+              alt="Logo Sepror"
+              width={100}
+              height={100}
+              className="object-contain"
+            />
           </div>
         </div>
       </footer>
