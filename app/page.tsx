@@ -1,7 +1,16 @@
 "use client";
+// Indica ao Next.js que este componente será renderizado no lado do cliente.
+
+// Este arquivo é um componente React que roda no lado do cliente em ambientes Next.js.
+// "use client" garante que este arquivo será renderizado no navegador e não no servidor.
 
 import React, { JSX, useEffect, useState } from "react";
+// Importa o React e os hooks useEffect e useState.
+// JSX é usado para tipar elementos React.
+
 import { motion, Variants } from "framer-motion";
+// Importa componentes e tipagens do Framer Motion para animações.
+
 import {
   Menu,
   Building2,
@@ -18,34 +27,57 @@ import {
   FileSpreadsheet,
   File,
 } from "lucide-react";
+// Importa vários ícones SVG da biblioteca lucide-react.
+// Cada ícone é utilizado em botões e links do sistema.
+
 import { Layers, BarChart3, Mail, Globe, Wrench, Leaf } from "lucide-react";
+// Importa ainda mais ícones adicionais da mesma biblioteca.
+
+// =====================
+// COMPONENTES DE INTERFACE
+// =====================
 
 import Calendar from "react-calendar";
+// Importa um calendário pronto da biblioteca react-calendar.
+
 import "react-calendar/dist/Calendar.css";
+// Importa o CSS padrão do calendário.
+
 import Image from "next/image";
+// Componente otimizado de imagens do Next.js.
+
 import "../app/calendar.css";
+// Importa um CSS personalizado para estilizar o calendário.
+
 import Link from "next/link";
+// Componente Next.js para criar links internos sem recarregar a página.
 
 // =================================================================
 // 1. TIPAGEM
 // =================================================================
 
 type ValuePiece = Date | null;
-// Mantenho a tipagem de Value, mas o Calendar só usa Date | null no seu caso de uso
-type Value = ValuePiece | [ValuePiece, ValuePiece];
-type DepartmentKey = "PJ" | "RH" | "SGC";
+// Define que um valor de data pode ser uma Date ou null.
 
+type Value = ValuePiece | [ValuePiece, ValuePiece];
+// Define que o calendário pode retornar uma única data ou um intervalo de datas.
+
+type DepartmentKey = "PJ" | "RH" | "SGC";
+// Tipagem que limita a aba selecionada do departamento a apenas três valores.
+
+// Tipagem dos colaboradores da empresa
 type Colaborador = {
-  id: number;
-  nome: string;
-  cargo: string;
-  foto: string;
-  data_nascimento: string;
+  id: number; // ID interno
+  nome: string; // Nome do colaborador
+  cargo: string; // Cargo ocupado
+  foto: string; // URL da foto
+  data_nascimento: string; // Data de nascimento no formato string
 };
 
+// Tipagem genérica para registros como contatos, emails, ramais etc.
 type Registro = {
   id: number;
-  nome?: string;
+  nome?: string; // Pode ou não existir
   cargo?: string;
   ramal?: string;
   email?: string;
@@ -53,32 +85,37 @@ type Registro = {
   foto?: string;
 };
 
+// Tipagem da estrutura de notícias exibidas no card de dicas
 interface NewsItem {
-  id: number;
-  title: string;
-  img: string; // O tipo 'string' é perfeito para URLs completas
-  href: string;
+  id: number; // ID único
+  title: string; // Título da notícia
+  img: string; // Caminho da imagem
+  href: string; // Link destino
 }
 
 // =================================================================
 // 2. DADOS E CONSTANTES
 // =================================================================
 
+// Variáveis de animação, usadas nos elementos animados do Framer Motion.
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
+  // Estado inicial: elemento invisível e deslocado para baixo.
+
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
     transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" },
+    // Cada item aparece com atraso proporcional ao índice.
   }),
 };
 
-// Links rápidos
+// Lista de atalhos rápidos exibidos no topo da intranet.
 const quickLinks = [
   {
-    title: "Ajuri",
-    icon: <Layers className="w-6 h-6" />,
-    href: "http://www.ajuri.am.gov.br/",
+    title: "Ajuri", // Nome do atalho
+    icon: <Layers className="w-6 h-6" />, // Ícone exibido
+    href: "http://www.ajuri.am.gov.br/", // Link externo
   },
   {
     title: "E-Compras",
@@ -112,26 +149,28 @@ const quickLinks = [
   },
   {
     title: "Suporte TI",
-    icon: <Wrench className="w-6 h-6"/>,
+    icon: <Wrench className="w-6 h-6" />,
     href: "https://nti.idam.am.gov.br/front/helpdesk.public.php",
   },
 ];
 
-// Documentos / Office Apps
+// Lista de aplicativos Office exibidos na seção Documentos
 const officeApps = [
   {
-    img: "/image/outlook.png",
-    title: "Outlook",
-    href: "https://outlook.office365.com/mail/",
+    img: "/image/outlook.png", // Caminho da imagem
+    title: "Outlook", // Nome
+    href: "https://outlook.office365.com/mail/", // Link
   },
   {
     img: "/image/Word.png",
     title: "Word",
     href: "https://www.office.com/launch/word",
   },
-  { img: "/image/excel.png", 
-    title: "Excel", 
-    href: "https://excel.office.com" },
+  {
+    img: "/image/excel.png",
+    title: "Excel",
+    href: "https://excel.office.com",
+  },
   {
     img: "/image/powerpoint.png",
     title: "PowerPoint",
@@ -159,12 +198,17 @@ const officeApps = [
   },
 ];
 
-// Departamentos
+// ==================================================================
+// Departamentos: cada aba contém seus links específicos
+// ==================================================================
 
 const departamentos: Record<
   DepartmentKey,
   { title: string; icon: JSX.Element; href: string }[]
 > = {
+  // ============================
+  // DEPARTAMENTO PJ
+  // ============================
   PJ: [
     {
       title: "Diário Oficial",
@@ -222,6 +266,10 @@ const departamentos: Record<
       href: "https://pje.trt11.jus.br/primeirograu/login.seam",
     },
   ],
+
+  // ============================
+  // DEPARTAMENTO RH
+  // ============================
   RH: [
     {
       title: "Prodam RH",
@@ -259,6 +307,10 @@ const departamentos: Record<
       href: "https://ioanews.imprensaoficial.am.gov.br/",
     },
   ],
+
+  // ============================
+  // DEPARTAMENTO SGC
+  // ============================
   SGC: [
     {
       title: "Sistema de Gestão de Contratos (SGC)",
@@ -282,7 +334,8 @@ export default function Page() {
     "https://office365prodam-my.sharepoint.com/:x:/g/personal/nti_idam_am_gov_br/EfqRFyXpB7dJme1xxhXjOYMBTJmkM7EoTfn_yk3wBfZuMQ?e=wK1SQ7";
   const EMAILS_PDF_URL =
     "https://docs.google.com/document/d/1Kil4NcZkgZUqnPt5o687z3eBD0W6YNfVXsn2J-t3MSQ/edit?pli=1&tab=t.0";
-  const CONTATOS_PDF_URL = "";
+  const CONTATOS_PDF_URL =
+    "https://docs.google.com/document/d/1cHB5TwcjBeatoFZkSdiDsl4-pKsixxy0AdgM4dLTan8/edit?invite=CL6n4Y8O&tab=t.0";
 
   // Mock de notícias
   useEffect(() => {
@@ -322,20 +375,18 @@ export default function Page() {
         // 🔧 Você pode trocar a URL pelo seu servidor:
         // Exemplo: http://200.160.7.186/api/time
         const res = await fetch(
-          "https://worldtimeapi.org/api/timezone/America/Manaus"
+          "https://timeapi.io/api/Time/current/zone?timeZone=America/Manaus"
         );
 
-        if (!res.ok) throw new Error("Erro ao obter hora do servidor");
+        throw new Error("Erro ao obter hora do servidor");
 
         const data = await res.json();
-
-        // A API retorna algo assim:
-        // {
-        //   "datetime": "2025-11-04T12:34:56.789012-04:00",
-        //   ...
-        // }
-
-        const serverDate = new Date(data.datetime);
+        
+        // TimeAPI.io retorna o campo como "dateTime" (exemplo: "2025-11-17T14:00:00")
+        
+        // 🛠️ CORREÇÃO: Mudança de data.datetime para data.dateTime
+        const serverDate = new Date(data.dateTime); 
+        
         if (!isNaN(serverDate.getTime())) {
           setDate(serverDate);
         } else {
@@ -347,7 +398,7 @@ export default function Page() {
         setLoadingDate(false);
       }
     }
-
+    
     fetchServerTime();
   }, []);
 
@@ -365,7 +416,7 @@ export default function Page() {
               src="/img/logo-idam.png"
               alt="Logo IDAM"
               width={64}
-              height={64}
+              height={64} //
               className="object-contain"
             />
             <div>
@@ -434,6 +485,8 @@ export default function Page() {
         </div>
       </div>
 
+
+
       {/* ====== CONTEÚDO PRINCIPAL ====== */}
       <motion.main
         className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8"
@@ -472,7 +525,9 @@ export default function Page() {
             animate="visible"
             className="font-geomanist font-normal "
           >
-            <h3 className="text-xl font-semibold text-[#144b3f] mb-3 text-bold">Departamentos</h3>
+            <h3 className="text-xl font-semibold text-[#144b3f] mb-3 text-bold">
+              Departamentos
+            </h3>
 
             {/* Botões de departamentos */}
             <div className="flex flex-wrap font-bold gap-3 border-b-2 border-gray-200 mb-4">
