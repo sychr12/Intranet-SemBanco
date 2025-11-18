@@ -1,15 +1,15 @@
 "use client";
-// Indica ao Next.js que este componente será renderizado no lado do cliente.
+// Indica ao Next.js que este componente será renderizado no lado do cliente (client-side).
 
 // Este arquivo é um componente React que roda no lado do cliente em ambientes Next.js.
 // "use client" garante que este arquivo será renderizado no navegador e não no servidor.
 
 import React, { JSX, useEffect, useState } from "react";
-// Importa o React e os hooks useEffect e useState.
-// JSX é usado para tipar elementos React.
+// Importa React e hooks: useEffect (efeitos colaterais) e useState (estado local).
+// JSX é importado apenas para tipagem dos elementos JSX (TypeScript).
 
 import { motion, Variants } from "framer-motion";
-// Importa componentes e tipagens do Framer Motion para animações.
+// Importa 'motion' para componentes animados e 'Variants' para tipar variantes de animação.
 
 import {
   Menu,
@@ -27,70 +27,69 @@ import {
   FileSpreadsheet,
   File,
 } from "lucide-react";
-// Importa vários ícones SVG da biblioteca lucide-react.
-// Cada ícone é utilizado em botões e links do sistema.
+// Importa vários ícones SVG da biblioteca 'lucide-react' usados na interface.
 
 import { Layers, BarChart3, Mail, Globe, Wrench, Leaf } from "lucide-react";
-// Importa ainda mais ícones adicionais da mesma biblioteca.
+// Importa ícones adicionais da mesma biblioteca.
 
 // =====================
 // COMPONENTES DE INTERFACE
 // =====================
 
 import Calendar from "react-calendar";
-// Importa um calendário pronto da biblioteca react-calendar.
+// Importa componente de calendário da biblioteca 'react-calendar'.
 
 import "react-calendar/dist/Calendar.css";
-// Importa o CSS padrão do calendário.
+// Importa o CSS padrão do calendário para estilo básico.
 
 import Image from "next/image";
-// Componente otimizado de imagens do Next.js.
+// Importa o componente de imagem otimizado do Next.js.
 
 import "../app/calendar.css";
-// Importa um CSS personalizado para estilizar o calendário.
+// Importa um CSS personalizado (local) para ajustar estilos do calendário.
 
 import Link from "next/link";
-// Componente Next.js para criar links internos sem recarregar a página.
+// Importa o componente Link do Next.js para navegação interna sem reload completo.
 
 // =================================================================
 // 1. TIPAGEM
 // =================================================================
 
 type ValuePiece = Date | null;
-// Define que um valor de data pode ser uma Date ou null.
+// Define um tipo que pode ser uma Date ou null (usado pelo calendário).
 
 type Value = ValuePiece | [ValuePiece, ValuePiece];
-// Define que o calendário pode retornar uma única data ou um intervalo de datas.
+// Define o valor do calendário: pode ser uma única data ou um intervalo [start, end].
 
 type DepartmentKey = "PJ" | "RH" | "SGC";
-// Tipagem que limita a aba selecionada do departamento a apenas três valores.
+// Restrição de chaves válidas para abas/departamentos: somente "PJ", "RH" ou "SGC".
 
 // Tipagem dos colaboradores da empresa
 type Colaborador = {
-  id: number; // ID interno
+  id: number; // ID interno do colaborador
   nome: string; // Nome do colaborador
-  cargo: string; // Cargo ocupado
-  foto: string; // URL da foto
-  data_nascimento: string; // Data de nascimento no formato string
+  cargo: string; // Cargo ou função
+  foto: string; // URL da foto do colaborador
+  data_nascimento: string; // Data de nascimento como string
 };
 
 // Tipagem genérica para registros como contatos, emails, ramais etc.
 type Registro = {
-  id: number;
-  nome?: string; // Pode ou não existir
-  cargo?: string;
-  ramal?: string;
-  email?: string;
-  contato?: string;
-  foto?: string;
+  id: number; // ID do registro
+  nome?: string; // Nome (opcional)
+  cargo?: string; // Cargo (opcional)
+  ramal?: string; // Ramal (opcional)
+  email?: string; // Email (opcional)
+  contato?: string; // Telefone/contato (opcional)
+  foto?: string; // Foto (opcional)
 };
 
 // Tipagem da estrutura de notícias exibidas no card de dicas
 interface NewsItem {
-  id: number; // ID único
+  id: number; // ID único da notícia
   title: string; // Título da notícia
-  img: string; // Caminho da imagem
-  href: string; // Link destino
+  img: string; // Caminho/URL da imagem
+  href: string; // Link de destino ao clicar
 }
 
 // =================================================================
@@ -100,21 +99,22 @@ interface NewsItem {
 // Variáveis de animação, usadas nos elementos animados do Framer Motion.
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
-  // Estado inicial: elemento invisível e deslocado para baixo.
+  // Estado "hidden": transparente e deslocado 30px para baixo.
 
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
     transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" },
-    // Cada item aparece com atraso proporcional ao índice.
+    // Estado "visible": opacidade total, posição original.
+    // Atraso de transição proporcional ao índice 'i' (stagger).
   }),
 };
 
 // Lista de atalhos rápidos exibidos no topo da intranet.
 const quickLinks = [
   {
-    title: "Ajuri", // Nome do atalho
-    icon: <Layers className="w-6 h-6" />, // Ícone exibido
+    title: "Ajuri", // Nome exibido
+    icon: <Layers className="w-6 h-6" />, // Ícone JSX
     href: "http://www.ajuri.am.gov.br/", // Link externo
   },
   {
@@ -157,9 +157,9 @@ const quickLinks = [
 // Lista de aplicativos Office exibidos na seção Documentos
 const officeApps = [
   {
-    img: "/image/outlook.png", // Caminho da imagem
-    title: "Outlook", // Nome
-    href: "https://outlook.office365.com/mail/", // Link
+    img: "/image/outlook.png", // Caminho da imagem do app
+    title: "Outlook", // Nome do app
+    href: "https://outlook.office365.com/mail/", // Link de acesso
   },
   {
     img: "/image/Word.png",
@@ -202,6 +202,7 @@ const officeApps = [
 // Departamentos: cada aba contém seus links específicos
 // ==================================================================
 
+// 'departamentos' é um objeto cujas chaves são DepartmentKey e o valor é lista de links com título, ícone e href.
 const departamentos: Record<
   DepartmentKey,
   { title: string; icon: JSX.Element; href: string }[]
@@ -326,10 +327,16 @@ const departamentos: Record<
 
 export default function Page() {
   const [date, setDate] = useState<Value>(new Date());
-  const [selectedDept, setSelectedDept] = useState<DepartmentKey>("PJ");
-  const [fetchedNews, setFetchedNews] = useState<NewsItem[]>([]);
+  // Estado 'date' inicializado com a data atual (ou um Value compatível).
+  // setDate atualiza o estado quando o usuário escolhe outra data no calendário.
 
-  // PDFs
+  const [selectedDept, setSelectedDept] = useState<DepartmentKey>("PJ");
+  // Estado que guarda o departamento selecionado (aba ativa). Inicial "PJ".
+
+  const [fetchedNews, setFetchedNews] = useState<NewsItem[]>([]);
+  // Estado para guardar as notícias/dicas (array de NewsItem).
+
+  // URLs de PDFs/recursos externos usados nos links laterais.
   const RAMAIS_PDF_URL =
     "https://office365prodam-my.sharepoint.com/:x:/g/personal/nti_idam_am_gov_br/EfqRFyXpB7dJme1xxhXjOYMBTJmkM7EoTfn_yk3wBfZuMQ?e=wK1SQ7";
   const EMAILS_PDF_URL =
@@ -337,7 +344,7 @@ export default function Page() {
   const CONTATOS_PDF_URL =
     "https://docs.google.com/document/d/1cHB5TwcjBeatoFZkSdiDsl4-pKsixxy0AdgM4dLTan8/edit?invite=CL6n4Y8O&tab=t.0";
 
-  // Mock de notícias
+  // Mock de notícias: simula dados vindos de uma API.
   useEffect(() => {
     const mockNews: NewsItem[] = [
       {
@@ -360,6 +367,33 @@ export default function Page() {
       },
     ];
     setFetchedNews(mockNews);
+    // Atualiza o estado 'fetchedNews' com os dados mockados.
+  }, []);
+  // useEffect sem dependências => roda apenas uma vez ao montar o componente.
+
+  // Estado que mostra o que está tocando no momento
+  const [nowPlaying, setNowPlaying] = useState("Carregando...");
+
+  // Estado que controla se está tocando ou pausado
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Busca "tocando agora" da BRLogic quando o player carrega
+  useEffect(() => {
+    fetch("https://api.brlogic.com/nowplaying/7486")
+      .then((r) => r.json())
+      .then((d) => {
+        // Nome da rádio
+        const radioName = d.station?.name || "Rádio";
+
+        // Música atual
+        const music = d.title || "Informação indisponível";
+
+        // Exibe no player
+        setNowPlaying(`${radioName} — Tocando: ${music}`);
+      })
+      .catch(() => {
+        setNowPlaying("Informação indisponível");
+      });
   }, []);
 
   // ============================
@@ -367,66 +401,84 @@ export default function Page() {
   // ============================
 
   const [loadingDate, setLoadingDate] = useState(true);
+  // Estado que indica se estamos carregando a data do servidor.
 
   useEffect(() => {
     async function fetchServerTime() {
       setLoadingDate(true);
+      // Começa o loading para indicar que está buscando a hora
+
       try {
-        // 🔧 Você pode trocar a URL pelo seu servidor:
-        // Exemplo: http://200.160.7.186/api/time
+        // 📡 Nova API estável usada: WorldTimeAPI
         const res = await fetch(
-          "https://timeapi.io/api/Time/current/zone?timeZone=America/Manaus"
+          "https://worldtimeapi.org/api/timezone/America/Manaus"
         );
 
-        throw new Error("Erro ao obter hora do servidor");
+        // Verifica se a requisição deu certo
+        if (!res.ok) {
+          throw new Error("Erro ao obter hora do servidor");
+        }
 
+        // Converte o conteúdo da resposta em JSON
         const data = await res.json();
-        
-        // TimeAPI.io retorna o campo como "dateTime" (exemplo: "2025-11-17T14:00:00")
-        
-        // 🛠️ CORREÇÃO: Mudança de data.datetime para data.dateTime
-        const serverDate = new Date(data.dateTime); 
-        
+
+        // A WorldTimeAPI retorna a hora em data.datetime
+        const serverDate = new Date(data.datetime);
+
+        // Verifica se a data é válida antes de salvar no estado
         if (!isNaN(serverDate.getTime())) {
           setDate(serverDate);
         } else {
           console.warn("⚠️ Data inválida recebida:", data);
         }
       } catch (err) {
+        // Qualquer erro vem parar aqui
         console.error("❌ Erro ao buscar hora do servidor:", err);
       } finally {
+        // Finaliza o loading de forma segura
         setLoadingDate(false);
       }
     }
-    
-    fetchServerTime();
+
+    fetchServerTime(); // Executa quando o componente monta
   }, []);
+
+  // Dependências vazias => executa apenas uma vez ao montar.
 
   return (
     <div className="relative w-full min-h-screen bg-[url('/Gov/foto7.png')] bg-cover bg-center bg-no-repeat">
+      {/* Container principal: fundo com imagem, ocupa toda a altura mínima da tela */}
+
       {/* ====== CABEÇALHO ====== */}
       <motion.header
         className=" border-b border-gray-100 bg-[#227e6a] shadow-sm sticky top-0 z-50"
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
       >
+        {/* Cabeçalho animado (entra de cima) com Framer Motion */}
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+          {/* Wrapper centralizado com padding e espaçamento entre elementos */}
           <div className="flex items-center gap-4">
             <Image
-              src="/img/logo-idam.png"
+              src="/Gov/logo-idam.png"
               alt="Logo IDAM"
               width={64}
               height={64} //
               className="object-contain"
             />
+            {/* Logo usando Next/Image com largura/altura definidas */}
+
             <div>
               <h1 className="text-[1.10rem] leading-nonebg-[url('/Gov/foto7.png')] tracking-tight sm:text-[1.0rem] font-geomanist font-semibold text-white">
                 INTRANET
               </h1>
+              {/* Título principal do cabeçalho */}
+
               <p className="text-xs text-white font-geomanist font-normal">
                 Instituto de Desenvolvimento Agropecuário e Florestal
                 Sustentável do Amazonas
               </p>
+              {/* Subtítulo/informação institucional */}
             </div>
           </div>
 
@@ -435,12 +487,14 @@ export default function Page() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             ></motion.button>
+            {/* Botão de login (vazio no conteúdo) com animações ao hover/tap */}
           </Link>
         </div>
       </motion.header>
 
       {/* ====== HERO ====== */}
       <section className=" py-12 text-center border-b bg-[#144b3f] border-gray-200">
+        {/* Seção principal (hero) com cor de fundo escura */}
         {/* Logo à direita */}
         <div className="flex justify-center-safe">
           <Image
@@ -452,6 +506,7 @@ export default function Page() {
           />
         </div>
         <p className="text-white mt-2 text-base md:text-base max-w-xl mx-auto font-geomanist font-normal"></p>
+        {/* Parágrafo vazio — reservado para subtítulo ou descrição */}
       </section>
 
       {/* Lista de links rápidos (Quick Links) */}
@@ -471,21 +526,113 @@ export default function Page() {
               rel="noopener noreferrer"
               className="flex flex-col items-center justify-center gap-2 p-3 hover:shadow-black bg-[#144b3f] text-white rounded-xl shadow-md hover:bg-[#1d6654] transition-all duration-300 min-h-[110px]"
             >
+              {/* Cada atalho rápido é um link externo com animação */}
               {/* Ícone */}
               <div className="w-8 h-8 flex items-center justify-center">
                 {q.icon}
+                {/* Renderiza o ícone JSX do quickLinks */}
               </div>
 
               {/* Título */}
               <span className="text-base font-semibold tracking-wide text-center uppercase">
                 {q.title}
+                {/* Texto do título do atalho */}
               </span>
             </motion.a>
           ))}
         </div>
       </div>
 
+      {/* CONTAINER CENTRALIZADO COMO O TÍTULO DOCUMENTOS */}
+      <div className="w-full flex flex-col items-center mt-6">
+        {/* TÍTULO DO PLAYER CENTRALIZADO */}
+        <p className="text-[#1b3631] font-semibold mb-1 text-sm text-center w-full">
+          Ouça a Rádio Agência Amazonas
+        </p>
 
+        {/* PLAYER CENTRALIZADO IGUAL AO TÍTULO DOCUMENTOS */}
+        <div
+          className="bg-white border border-[#d9e6df] rounded-lg flex items-center gap-3 
+               p-3 shadow-sm w-full max-w-[600px]"
+        >
+          {/* BOTÃO PLAY/PAUSE */}
+          <button
+            onClick={() => {
+              const audio = document.getElementById(
+                "player"
+              ) as HTMLAudioElement;
+
+              // Alterna play/pause
+              if (audio.paused) {
+                audio.play();
+                setIsPlaying(true);
+              } else {
+                audio.pause();
+                setIsPlaying(false);
+              }
+            }}
+            className="w-9 h-9 flex items-center justify-center bg-[#276f59] hover:bg-[#1d5947] 
+                 text-white rounded-full shadow-sm transition-all duration-200"
+          >
+            {/* ÍCONES */}
+            {isPlaying ? (
+              // Ícone de pause
+              <svg width="12" height="12" fill="white">
+                <rect x="3" y="1" width="3" height="10" rx="1" />
+                <rect x="7" y="1" width="3" height="10" rx="1" />
+              </svg>
+            ) : (
+              // Ícone de play
+              <svg width="12" height="12" fill="white">
+                <polygon points="3,1 11,6 3,11" />
+              </svg>
+            )}
+          </button>
+
+          {/* BARRA + TEXTO */}
+          <div className="flex items-center gap-3 flex-1">
+            <input
+              id="progress"
+              type="range"
+              min="0"
+              max="100"
+              defaultValue="0"
+              className="w-full accent-[#276f59] cursor-pointer h-1.5 rounded-lg"
+              onChange={(e) => {
+                const audio = document.getElementById(
+                  "player"
+                ) as HTMLAudioElement;
+
+                // Permite buscar manualmente com a barra
+                if (audio.duration) {
+                  audio.currentTime =
+                    (audio.duration * Number(e.target.value)) / 100;
+                }
+              }}
+            />
+
+            {/* TEXTO TOCANDO AGORA VINDO DA API */}
+            <span className="text-[#1b3631] text-[11px] whitespace-nowrap opacity-80">
+              {nowPlaying}
+            </span>
+          </div>
+        </div>
+
+        {/* ÁUDIO */}
+        <audio
+          id="player"
+          src="https://servidor29-2.brlogic.com:7486/live"
+          onTimeUpdate={() => {
+            const audio = document.getElementById("player") as HTMLAudioElement;
+            const bar = document.getElementById("progress") as HTMLInputElement;
+
+            // Atualiza a barra conforme o áudio toca
+            if (audio.duration) {
+              bar.value = String((audio.currentTime / audio.duration) * 100);
+            }
+          }}
+        />
+      </div>
 
       {/* ====== CONTEÚDO PRINCIPAL ====== */}
       <motion.main
@@ -494,9 +641,13 @@ export default function Page() {
         animate="visible"
         variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
       >
+        {/* Main com 3 colunas (em telas grandes) e espaçamento entre áreas */}
+
         {/* COLUNA ESQUERDA */}
+
         <div className="lg:col-span-2 space-y-8">
           {/* Documentos */}
+
           <motion.section variants={fadeUp}>
             <h3 className="text-xl font-semibold text-[#144b3f] mb-3 text-bold">
               Documentos
@@ -512,7 +663,9 @@ export default function Page() {
                   className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-300 transition w-20 text-center font-geomanist font-normal"
                 >
                   <img src={doc.img} alt={doc.title} className="w-10 h-10" />
+                  {/* Ícone/imagem do aplicativo Office */}
                   <span className="text-xs mt-1 text-black">{doc.title}</span>
+                  {/* Nome do app */}
                 </motion.a>
               ))}
             </div>
@@ -546,6 +699,7 @@ export default function Page() {
                   }`}
                 >
                   {dep}
+                  {/* Botão que altera o estado 'selectedDept' ao ser clicado */}
                 </motion.button>
               ))}
             </div>
@@ -568,6 +722,7 @@ export default function Page() {
                 >
                   <span className="text-[#144b3f]">{item.icon}</span>
                   <span className="text-base">{item.title}</span>
+                  {/* Cada item mostra ícone e título e abre em nova aba */}
                 </motion.a>
               ))}
             </div>
@@ -613,9 +768,11 @@ export default function Page() {
                       whileHover={{ scale: 1.08 }}
                       transition={{ duration: 0.3 }}
                     />
+                    {/* Imagem da notícia com leve zoom ao hover */}
                     <div className="p-3">
                       <p className="text-base font-semibold text-gray-800 leading-tight group-hover:text-[#144b3f] transition-colors">
                         {item.title}
+                        {/* Título da dica/notícia */}
                       </p>
                     </div>
                   </motion.a>
@@ -629,6 +786,7 @@ export default function Page() {
                 className="text-base text-slate-500 pt-2 text-center bg-white p-4 rounded-lg shadow-sm border border-gray-100"
               >
                 Nenhuma dica disponível no momento.
+                {/* Mensagem exibida quando não há notícias */}
               </motion.div>
             )}
           </motion.section>
@@ -645,11 +803,13 @@ export default function Page() {
                 Carregando data...
               </p>
             ) : (
+              // Enquanto 'loadingDate' for true, mostra mensagem de carregamento.
               <Calendar
                 onChange={setDate}
                 value={date}
                 className="w-full rounded-lg border-0"
               />
+              // Quando não estiver carregando, renderiza o componente Calendar com valor 'date'
             )}
           </div>
 
@@ -667,6 +827,7 @@ export default function Page() {
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Ramais (PDF)
+              {/* Link para abrir PDF de ramais em nova aba */}
             </motion.a>
             <p className="text-center text-xs text-slate-500 mt-2">
               O arquivo será aberto em uma nova aba.
@@ -683,10 +844,11 @@ export default function Page() {
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02, x: 2 }}
-              className="flex items-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#227e6a] transition duration-200 shadow-md"
+              className="flex itens-center justify-center gap-3 p-4 mt-2 bg-[#144b3f] text-white rounded-lg font-medium hover:bg-[#227e6a] transition duration-200 shadow-md"
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Emails (PDF)
+              {/* Link para abrir PDF/lista de emails */}
             </motion.a>
             <p className="text-center text-xs text-slate-500 mt-2">
               O arquivo será aberto em uma nova aba.
@@ -707,6 +869,7 @@ export default function Page() {
             >
               <File className="w-5 h-5" />
               Visualizar Lista de Contatos (PDF)
+              {/* Link para abrir lista de contatos */}
             </motion.a>
             <p className="text-center text-xs text-slate-500 mt-2">
               O arquivo será aberto em uma nova aba.
@@ -718,9 +881,11 @@ export default function Page() {
       {/* ====== RODAPÉ ====== */}
 
       <div className="w-full h-10 bg-[#227e6a]"></div>
+      {/* Barra simples acima do footer para espaçamento/efeito visual */}
+
       <footer className="bg-[#144b3f] text-white font-geomanist font-normal h-30">
         <div className="max-w-7xl mx-auto px-6 py-1 flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Texto Institucional */}
+          {/* Conteúdo do rodapé: texto institucional e logos */}
           <div className="flex flex-col text-center md:text-left ">
             <p className="text-base leading-relaxed ">
               NÚCLEO DE TECNOLOGIA DA INFORMAÇÃO
@@ -728,6 +893,7 @@ export default function Page() {
             <p className="text-xs text-gray-200 mt-2">
               © {new Date().getFullYear()} NTI - Todos os direitos reservados.
             </p>
+            {/* Ano atual gerado dinamicamente */}
           </div>
 
           {/* Logos lado a lado */}
